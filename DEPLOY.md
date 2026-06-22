@@ -49,6 +49,16 @@ npm run dev
 
 Открыть: http://localhost:3000
 
-## Примечание
+## Если сборка падает на npm ci
 
-При первом запуске на Railway автоматически создаётся база и демо-данные (3 населённых пункта).
+Убедитесь, что в GitHub есть файлы:
+- `package-lock.json`
+- `prisma/schema.prisma`
+- `prisma/migrations/` (вся папка)
+
+## Если статус CRASHED (сборка прошла, сайт не стартует)
+
+1. Добавьте Volume с путём `/data`
+2. Добавьте переменную `DATABASE_URL` = `file:/data/dev.db`
+3. Нажмите **Restart** на Railway
+
