@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Settlement {
+  id                   String              @id @default(cuid())
+  name                 String
+  district             String              @default("")
+  settlementType       String              @default("")
+  status               String              @default("новый")
+  totalScore           Int                 @default(0)
+  recommendation       String              @default("")
+  dataConfidenceLevel  String              @default("низкая")
+  priorityStatus       String              @default("")
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  webInfo              SettlementWebInfo?
+  demandRequests       DemandRequest[]
+  competitors          Competitor[]
+  analysisResult       AnalysisResult?
+}
+
+model SettlementWebInfo {
+  id              String     @id @default(cuid())
+  settlementId    String     @unique
+  settlement      Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  population      Int?
+  householdsCount Int?
+  coordinates     String?
+  socialObjects   String?
+  businessObjects String?
+  buildingType    String?
+  sourceUrl       String?
+  dataStatus      String     @default("внесено_вручную")
+  comment         String?
+}
+
+model DemandRequest {
+  id                    String     @id @default(cuid())
+  settlementId          String
+  settlement            Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  street                String     @default("")
+  house                 String     @default("")
+  source                String     @default("ручной ввод")
+  serviceType           String     @default("Интернет")
+  status                String     @default("оставил заявку")
+  isConfirmed           Boolean    @default(false)
+  readyToPayConnection  Boolean    @default(false)
+  readyToSignContract   Boolean    @default(false)
+  isDuplicate           Boolean    @default(false)
+  isInitiativeGroup     Boolean    @default(false)
+  comment               String?
+  createdAt             DateTime   @default(now())
+}
+
+model Competitor {
+  id              String     @id @default(cuid())
+  settlementId    String
+  settlement      Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  name            String
+  technology      String     @default("неизвестно")
+  tariff          Float?
+  speed           String?
+  coverageNotes   String?
+  weaknesses      String?
+  qualityNotes    String?
+  sourceUrl       String?
+  dataStatus      String     @default("внесено_вручную")
+  comment         String?
+}
+
+model AnalysisResult {
+  id                  String     @id @default(cuid())
+  settlementId        String     @unique
+  settlement          Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  demandScore         Int        @default(0)
+  potentialScore      Int        @default(0)
+  competitionScore    Int        @default(0)
+  confidenceScore     Int        @default(0)
+  totalScore          Int        @default(0)
+  dataConfidenceLevel String     @default("низкая")
+  recommendation      String     @default("")
+  nextAction          String     @default("")
+  missingData         String     @default("[]")
+  updatedAt           DateTime   @updatedAt
+}
