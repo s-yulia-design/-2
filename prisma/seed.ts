@@ -103,9 +103,17 @@ async function recalculateSettlement(settlementId: string) {
 }
 
 async function main() {
+  const allowedNames = VOLGOGRAD_SETTLEMENTS.map((s) => s.name);
+
   await prisma.settlement.deleteMany({
     where: { name: { in: [...OLD_DEMO_NAMES] } },
   });
+
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    await prisma.settlement.deleteMany({
+      where: { name: { notIn: allowedNames } },
+    });
+  }
 
   const settlementCount = await prisma.settlement.count();
   const isFreshDatabase = settlementCount === 0;

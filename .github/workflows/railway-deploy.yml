@@ -1,0 +1,25 @@
+# После каждого push в main вызывает Deploy Hook Railway (свежий код с GitHub).
+# Один раз добавьте секрет в GitHub: Settings → Secrets → Actions → RAILWAY_DEPLOY_HOOK
+# URL взять в Railway: сервис → Settings → Webhooks → Create Webhook
+
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Railway deploy from latest main
+        env:
+          HOOK: ${{ secrets.RAILWAY_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::warning::Секрет RAILWAY_DEPLOY_HOOK не задан. Добавьте URL из Railway → Settings → Webhooks"
+            exit 0
+          fi
+          curl -fsS -X POST "$HOOK"
+          echo "Railway deploy triggered"

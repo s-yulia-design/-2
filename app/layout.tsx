@@ -36,6 +36,12 @@ export default function RootLayout({
           </div>
         </header>
         <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+        <footer className="border-t border-[var(--border)] bg-white py-2 text-center text-xs text-[var(--muted)]">
+          Версия: 2.1
+          {process.env.RAILWAY_GIT_COMMIT_SHA
+            ? ` · сборка ${process.env.RAILWAY_GIT_COMMIT_SHA.slice(0, 7)}`
+            : " · локальный запуск"}
+        </footer>
       </body>
     </html>
   );

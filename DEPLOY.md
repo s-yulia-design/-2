@@ -1,42 +1,57 @@
 # Публикация в интернет (Railway + SQLite)
 
-## Что нужно один раз
+## Быстрая проверка: какая версия на сайте
 
-1. Аккаунт на [GitHub](https://github.com) (у вас уже есть)
-2. Аккаунт на [Railway](https://railway.app) — войти через GitHub
+Внизу страницы должно быть:
 
-## Шаг 1. Загрузить код на GitHub
+**Версия: 2.1 · сборка xxxxxxx**
 
-В папке проекта в терминале:
+Если внизу нет этой строки — Railway всё ещё показывает **старую** сборку (Ерзовка, Городище, Романовка).
+
+---
+
+## Почему Redeploy не помогает
+
+**Redeploy** перезапускает **тот же старый коммит**, а не забирает код с GitHub.
+
+Нужен **новый деплой** с ветки `main` (см. ниже).
+
+---
+
+## Шаг 1. Настройки Railway (один раз)
+
+1. Сервис → **Settings → Source**
+   - Репозиторий: `s-yulia-design/-2`
+   - Ветка: **main**
+2. **Settings → Build**
+   - Builder: **Nixpacks** (не Dockerfile)
+3. **Settings → Variables**
+   - `DATABASE_URL` = `file:/data/dev.db`
+4. **Volume**: mount path `/data`
+5. **Networking** → домен (ссылка для менеджера)
+
+---
+
+## Шаг 2. Deploy Hook (чтобы обновления доходили автоматически)
+
+1. Railway → сервис → **Settings → Webhooks** → **Create Webhook** → скопируйте URL
+2. GitHub → репозиторий `-2` → **Settings → Secrets and variables → Actions**
+3. **New repository secret**: имя `RAILWAY_DEPLOY_HOOK`, значение — URL из п.1
+4. После каждого `git push` GitHub сам вызовет деплой на Railway
+
+Без секрета можно вручную: вставить URL webhook в браузер (POST) или в Railway нажать **Deploy** у последнего коммита (не Redeploy).
+
+---
+
+## Шаг 3. Загрузить код на GitHub
 
 ```bash
-git init
 git add .
-git commit -m "Пробный дашборд для менеджера"
-git branch -M main
-git remote add origin https://github.com/ВАШ_ЛОГИН/provider-dashboard.git
-git push -u origin main
+git commit -m "описание изменений"
+git push origin main
 ```
 
-Создайте пустой репозиторий `provider-dashboard` на GitHub заранее.
-
-## Шаг 2. Развернуть на Railway
-
-1. Откройте [railway.app](https://railway.app) → **New Project**
-2. **Deploy from GitHub repo** → выберите `provider-dashboard`
-3. Railway соберёт проект по `Dockerfile`
-4. В настройках сервиса добавьте **Volume**:
-   - Mount path: `/data`
-5. Переменная окружения:
-   - `DATABASE_URL` = `file:/data/dev.db`
-6. В разделе **Settings → Networking** нажмите **Generate Domain**
-7. Скопируйте ссылку вида `https://....up.railway.app`
-
-## Шаг 3. Отправить менеджеру
-
-Менеджеру нужна **только ссылка Railway**, не GitHub.
-
-Открывает в браузере — ничего устанавливать не нужно.
+---
 
 ## Локальный запуск (у себя)
 
@@ -49,16 +64,17 @@ npm run dev
 
 Открыть: http://localhost:3000
 
-## Если сборка падает на npm ci
+---
 
-Убедитесь, что в GitHub есть файлы:
+## Если сборка падает
+
+Убедитесь, что в репозитории есть:
 - `package-lock.json`
 - `prisma/schema.prisma`
 - `prisma/migrations/` (вся папка)
+- `railway.json` и `nixpacks.toml` (сборка через Nixpacks)
 
-## Если статус CRASHED (сборка прошла, сайт не стартует)
+## Если статус CRASHED
 
-1. Добавьте Volume с путём `/data`
-2. Добавьте переменную `DATABASE_URL` = `file:/data/dev.db`
-3. Нажмите **Restart** на Railway
-
+1. Volume `/data` и `DATABASE_URL=file:/data/dev.db`
+2. **Restart** (не Redeploy старого деплоя)
