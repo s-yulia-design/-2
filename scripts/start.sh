@@ -1,24 +1,22 @@
 #!/bin/sh
 
-mkdir -p /data
+mkdir -p /app/data
 
 export HOSTNAME=0.0.0.0
 export PORT=${PORT:-8080}
-export DATABASE_URL="file:/data/dev.db"
+export DATABASE_URL="${DATABASE_URL:-file:./data/dev.db}"
 
-echo "=== Provider Dashboard startup ==="
+echo "=== Startup ==="
 echo "PORT=${PORT}"
+echo "DATABASE_URL=${DATABASE_URL}"
 
-# Первый запуск: копируем готовую базу с демо-данными
-if [ ! -f /data/dev.db ] && [ -f /app/db-template/dev.db ]; then
-  echo "Copying pre-seeded database to /data/dev.db"
-  cp /app/db-template/dev.db /data/dev.db
-fi
+echo "Running migrations..."
+npx prisma migrate deploy
 
-echo "Applying database migrations..."
-if ! npx prisma migrate deploy; then
-  echo "Migration failed!"
-  exit 1
+if [ ! -f /app/data/.seeded ]; then
+  echo "Seeding database..."
+  npx prisma db seed || true
+  touch /app/data/.seeded
 fi
 
 echo "Starting Next.js on 0.0.0.0:${PORT}"
