@@ -4,22 +4,25 @@ RUN apk add --no-cache openssl libc6-compat
 
 WORKDIR /app
 
-# Сначала зависимости и схема БД (без postinstall)
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 RUN npm ci --ignore-scripts
 RUN npx prisma generate
 
-# Весь код проекта
 COPY . .
 
-ENV DATABASE_URL="file:/data/dev.db"
 RUN npm run build
 
-RUN mkdir -p /data
-RUN chmod +x scripts/start.sh
+# Демо-база создаётся при сборке, не при каждом запуске
+ENV DATABASE_URL="file:/app/db-template/dev.db"
+RUN mkdir -p /app/db-template \
+  && npx prisma migrate deploy \
+  && npx prisma db seed
 
-EXPOSE 3000
+RUN mkdir -p /data
+RUN sed -i 's/\r$//' scripts/start.sh && chmod +x scripts/start.sh
+
+EXPOSE 8080
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["sh", "scripts/start.sh"]
