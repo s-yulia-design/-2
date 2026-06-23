@@ -22,7 +22,7 @@ export function HomeGuide() {
           <div>
             <strong>Справка → «Найти в интернете»</strong>
             <p className="text-[var(--muted)]">
-              Подтянуть данные из Wikidata/OSM, проверить и подтвердить
+              Росстат, ФИАС, открытые данные и справочники — сверить и подтвердить
             </p>
           </div>
         </li>

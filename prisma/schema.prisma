@@ -36,6 +36,7 @@ model SettlementWebInfo {
   businessObjects String?
   buildingType    String?
   sourceUrl       String?
+  sourcesJson     String     @default("[]")
   dataStatus      String     @default("внесено_вручную")
   comment         String?
 }

@@ -1,3 +1,4 @@
+import { sourcesToJson } from "@/lib/officialSources";
 import { searchSettlementWeb } from "@/lib/internetSearch";
 import { prisma } from "@/lib/prisma";
 import { recalculateSettlement } from "@/lib/settlementService";
@@ -21,25 +22,33 @@ export async function POST(_request: Request, { params }: Params) {
       population: result.population,
       coordinates: result.coordinates,
       sourceUrl: result.sourceUrl,
-      dataStatus: "найдено_автоматически",
+      sourcesJson: sourcesToJson(result.sources),
+      buildingType: result.settlementType || undefined,
+      dataStatus: result.populationFromOfficialStats
+        ? "найдено_автоматически"
+        : "требует_проверки",
+      comment: result.sourcesNote,
     },
     update: {
       population: result.population ?? undefined,
       coordinates: result.coordinates || undefined,
       sourceUrl: result.sourceUrl,
-      dataStatus: "найдено_автоматически",
+      sourcesJson: sourcesToJson(result.sources),
+      buildingType: result.settlementType || undefined,
+      dataStatus: result.populationFromOfficialStats
+        ? "найдено_автоматически"
+        : "требует_проверки",
+      comment: result.sourcesNote,
     },
   });
 
-  if (result.district) {
-    await prisma.settlement.update({
-      where: { id },
-      data: {
-        district: result.district || settlement.district,
-        settlementType: result.settlementType || settlement.settlementType,
-      },
-    });
-  }
+  await prisma.settlement.update({
+    where: { id },
+    data: {
+      district: result.district || settlement.district,
+      settlementType: result.settlementType || settlement.settlementType,
+    },
+  });
 
   await recalculateSettlement(id);
   return NextResponse.json(webInfo);
