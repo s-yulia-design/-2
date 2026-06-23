@@ -64,6 +64,19 @@ a {
   background: #f8fafc;
 }
 
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-primary:disabled:hover {
+  background: var(--primary);
+}
+
+.btn-secondary:disabled:hover {
+  background: white;
+}
+
 .input,
 .select,
 .textarea {
