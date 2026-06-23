@@ -22,6 +22,10 @@ export default async function SettlementPage({ params }: Props) {
         <p className="text-sm text-[var(--muted)]">
           {settlement.district || "Район не указан"} · рейтинг {settlement.totalScore}
         </p>
+        <p className="mt-2 text-sm">
+          Здесь вы работаете с данными: справка из интернета, заявки жителей, конкуренты и итоговая
+          оценка. Выберите вкладку ниже.
+        </p>
       </div>
       <SettlementTabs settlement={settlement} />
     </div>

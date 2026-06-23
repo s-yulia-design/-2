@@ -2,8 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { getDemandStats } from "@/lib/scoring";
 import Link from "next/link";
 import { AddSettlementForm } from "@/components/AddSettlementForm";
+import { HomeGuide } from "@/components/HomeGuide";
 
 export const dynamic = "force-dynamic";
+
+function webInfoSourceLabel(status: string | undefined) {
+  if (!status) return "справка не заполнена";
+  return status.replaceAll("_", " ");
+}
 
 function scoreBadge(score: number) {
   if (score >= 75) return "badge badge-green";
@@ -34,26 +40,32 @@ export default async function HomePage() {
         <AddSettlementForm />
       </div>
 
+      <HomeGuide />
+
       <div className="card overflow-x-auto">
+        <p className="mb-3 text-sm text-[var(--muted)]">
+          Нажмите на название или «Открыть» — там справка из интернета, заявки и конкуренты
+        </p>
         <table className="data-table">
           <thead>
             <tr>
               <th>Населённый пункт</th>
               <th>Район</th>
+              <th>Источник справки</th>
               <th>Заявки</th>
               <th>Подтв.</th>
               <th>Население</th>
               <th>Конкуренты</th>
               <th>Рейтинг</th>
-              <th>Достоверность</th>
               <th>Рекомендация</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {settlements.length === 0 ? (
               <tr>
-                <td colSpan={9} className="py-8 text-center text-[var(--muted)]">
-                  Нет населённых пунктов. Добавьте первый.
+                <td colSpan={10} className="py-8 text-center text-[var(--muted)]">
+                  Нет населённых пунктов. Нажмите «+ Добавить населённый пункт» выше.
                 </td>
               </tr>
             ) : (
@@ -61,7 +73,7 @@ export default async function HomePage() {
                 const stats = getDemandStats(s.demandRequests);
                 const competitorLabel =
                   s.competitors.length === 0
-                    ? "неизвестно"
+                    ? "не указаны"
                     : s.competitors.length === 1
                       ? "1 провайдер"
                       : `${s.competitors.length} провайдера`;
@@ -76,6 +88,9 @@ export default async function HomePage() {
                       </Link>
                     </td>
                     <td>{s.district || "—"}</td>
+                    <td className="text-sm">
+                      {webInfoSourceLabel(s.webInfo?.dataStatus)}
+                    </td>
                     <td>{stats.total}</td>
                     <td>{stats.confirmed}</td>
                     <td>{s.webInfo?.population ?? "—"}</td>
@@ -83,8 +98,15 @@ export default async function HomePage() {
                     <td>
                       <span className={scoreBadge(s.totalScore)}>{s.totalScore}</span>
                     </td>
-                    <td>{s.dataConfidenceLevel}</td>
-                    <td className="max-w-xs">{s.recommendation || "—"}</td>
+                    <td className="max-w-xs text-sm">{s.recommendation || "—"}</td>
+                    <td>
+                      <Link
+                        href={`/settlements/${s.id}`}
+                        className="btn btn-primary whitespace-nowrap text-sm"
+                      >
+                        Открыть →
+                      </Link>
+                    </td>
                   </tr>
                 );
               })

@@ -71,7 +71,10 @@ export function SettlementWebInfoBlock({ settlementId, webInfo }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold">Справка о населённом пункте</h2>
-          <p className="text-sm text-[var(--muted)]">Данные из интернета с подтверждением</p>
+          <p className="text-sm text-[var(--muted)]">
+            Нажмите «Найти в интернете» — данные подтянутся из Wikidata и OpenStreetMap.
+            Проверьте и нажмите «Подтвердить данные». Или заполните поля вручную.
+          </p>
         </div>
         <span className={statusClass}>{form.dataStatus.replaceAll("_", " ")}</span>
       </div>

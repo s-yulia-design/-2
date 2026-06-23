@@ -13,11 +13,8 @@ echo "DATABASE_URL=${DATABASE_URL}"
 echo "Running migrations..."
 npx prisma migrate deploy
 
-if [ ! -f /app/data/.seeded ]; then
-  echo "Seeding database..."
-  npx prisma db seed || true
-  touch /app/data/.seeded
-fi
+echo "Syncing default settlements..."
+npx prisma db seed
 
 echo "Starting Next.js on 0.0.0.0:${PORT}"
 exec node ./node_modules/next/dist/bin/next start -H 0.0.0.0 -p "${PORT}"

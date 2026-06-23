@@ -22,12 +22,24 @@ type SettlementFull = Settlement & {
 };
 
 const TABS = [
-  { id: "web", label: "Справка" },
-  { id: "requests", label: "Заявки" },
-  { id: "competitors", label: "Конкуренты" },
-  { id: "technical", label: "Техника" },
-  { id: "economics", label: "Экономика" },
-  { id: "summary", label: "Итог" },
+  {
+    id: "web",
+    label: "Справка",
+    hint: "Данные из интернета и ручной ввод о населённом пункте",
+  },
+  {
+    id: "requests",
+    label: "Заявки",
+    hint: "Спрос жителей — вручную или импорт из CSV",
+  },
+  {
+    id: "competitors",
+    label: "Конкуренты",
+    hint: "Провайдеры, которые уже работают в НП",
+  },
+  { id: "technical", label: "Техника", hint: "Пока недоступно" },
+  { id: "economics", label: "Экономика", hint: "Пока недоступно" },
+  { id: "summary", label: "Итог", hint: "Рейтинг и рекомендация" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -43,11 +55,15 @@ export function SettlementTabs({ settlement }: { settlement: SettlementFull }) {
             key={t.id}
             className={`btn ${tab === t.id ? "btn-primary" : "btn-secondary"}`}
             onClick={() => setTab(t.id)}
+            title={t.hint}
           >
             {t.label}
           </button>
         ))}
       </div>
+      <p className="text-sm text-[var(--muted)]">
+        {TABS.find((t) => t.id === tab)?.hint}
+      </p>
 
       <div className="card">
         {tab === "web" && (
